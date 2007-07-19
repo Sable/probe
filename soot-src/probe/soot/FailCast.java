@@ -55,15 +55,13 @@ stmt:
                     Value rhs = as.getRightOp();
                     if( !(rhs instanceof CastExpr) ) continue;
                     CastExpr ce = (CastExpr) rhs;
-                    if(s.hasTag("BytecodeOffsetTag")) fc.executes().add(probeStmt(m, s));
-                    totalCasts++;
                     Value opv = ce.getOp();
                     if(!(opv instanceof Local)) continue;
                     Local op = (Local) opv;
-                    if(! (op.getType() instanceof RefLikeType) ) {
-                        if(s.hasTag("BytecodeOffsetTag")) fc.stmts().add(probeStmt(m, s));
-                        continue;
-                    }
+                    if(! (op.getType() instanceof RefLikeType) ) continue;
+
+                    if(s.hasTag("BytecodeOffsetTag")) fc.executes().add(probeStmt(m, s));
+                    totalCasts++;
                     PointsToSet pt = pa.reachingObjects(op);
                     for( Iterator tIt = pt.possibleTypes().iterator(); tIt.hasNext(); ) {
                         final Type t = (Type) tIt.next();
@@ -75,7 +73,6 @@ stmt:
                         }
                         if( !fh.canStoreType(t, ce.getCastType()) ) {
                             if(s.hasTag("BytecodeOffsetTag")) fc.stmts().add(probeStmt(m, s));
-                            //System.out.println( "added "+probeStmt(m,s)+" because ptset of "+op+" has possible type "+t);
                             continue stmt;
                         }
                     }
