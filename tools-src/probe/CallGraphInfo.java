@@ -9,12 +9,14 @@ public class CallGraphInfo {
         System.out.println( "Usage: java probe.CallGraphInfo [options] graph.gxl" );
         System.out.println( "  -m : print list of reachable methods" );
         System.out.println( "  -e : print list of entry points" );
+        System.out.println( "  -g : print list of call edges" );
         System.out.println( "  -lib file : ignore methods in packages listed in file" );
         System.exit(1);
     }
     public static String dashLib = null;
     public static boolean dashM = false;
     public static boolean dashE = false;
+    public static boolean dashG = false;
     public static final void main( String[] args ) {
         boolean doneOptions = false;
         String filename = null;
@@ -22,6 +24,7 @@ public class CallGraphInfo {
             if( !doneOptions && args[i].equals("-lib") ) dashLib = args[++i];
             else if( !doneOptions && args[i].equals("-m") ) dashM = true;
             else if( !doneOptions && args[i].equals("-e") ) dashE = true;
+            else if( !doneOptions && args[i].equals("-g") ) dashG = true;
             else if( !doneOptions && args[i].equals("--") ) doneOptions = true;
             else if( filename == null ) filename = args[i];
             else usage();
@@ -71,6 +74,14 @@ public class CallGraphInfo {
             System.out.println("Reachable methods: ");
             for( Iterator pmIt = rm.iterator(); pmIt.hasNext(); ) {
                 final ProbeMethod pm = (ProbeMethod) pmIt.next();
+                System.out.println(pm);
+            }
+        }
+
+        if(dashG) {
+            System.out.println("Call Edges: ");
+            for( Iterator pmIt = a.edges().iterator(); pmIt.hasNext(); ) {
+                final CallEdge pm = (CallEdge) pmIt.next();
                 System.out.println(pm);
             }
         }

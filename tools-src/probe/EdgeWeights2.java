@@ -3,10 +3,9 @@ package probe;
 import java.io.*;
 import java.util.*;
 
-public class EdgeWeights2 implements AbsEdgeWeights {
+public class EdgeWeights2 extends AbsEdgeWeights {
     public static final double THRESHOLD = 0.001;
     Map methodToNum = new HashMap();
-    ArrayList numToMethod = new ArrayList();
     private void addMethod(ProbeMethod m) {
         if( methodToNum.get(m) == null ) {
             methodToNum.put(m, new Integer(n++));
@@ -17,31 +16,7 @@ public class EdgeWeights2 implements AbsEdgeWeights {
         Integer ret = (Integer) methodToNum.get(m);
         return ret.intValue();
     }
-    public class FlowEdge {
-        public int src;
-        public int dst;
-        public double cumulative;
-        public String toString() {
-            return cumulative+" "+numToMethod.get(src)+" ==> " +numToMethod.get(dst);
-        }
-        public FlowEdge( int src, int dst ) { this.src = src; this.dst = dst; }
-        public double getFlow() {
-            return level[src] - level[dst];
-        }
-        public void doFlow() {
-            double diff = level[src] - level[dst];
-            diff /= 2;
-            diff /= 4;
-            doFlow(diff);
-        }
-        public void doFlow(double diff) {
-            cumulative += diff;
-            level[src] -= diff;
-            level[dst] += diff;
-        }
-    }
     int m = 0;
-    int n = 0;
     public abstract class FlowEdges {
         public abstract int key( FlowEdge e );
         public FlowEdges() {
@@ -82,15 +57,18 @@ public class EdgeWeights2 implements AbsEdgeWeights {
         }
     }
 
-    double[] level;
     FlowEdges in;
     FlowEdges out;
-    Collection subgraphReachables;
     CallGraph supergraph;
     CallGraph subgraph;
+    boolean dotGraph;
     public EdgeWeights2(CallGraph supergraph, CallGraph subgraph) {
+        this(supergraph, subgraph, false);
+    }
+    public EdgeWeights2(CallGraph supergraph, CallGraph subgraph, boolean dotGraph) {
         this.supergraph = supergraph;
         this.subgraph = subgraph;
+        this.dotGraph = dotGraph;
         subgraphReachables = subgraph.findReachables();
         addMethod(null);
         TreeSet edges = new TreeSet( new Comparator() {
@@ -148,6 +126,10 @@ public class EdgeWeights2 implements AbsEdgeWeights {
             Node n = (Node) heap.min();
             double flow = n.getFlow();
             if( flow < THRESHOLD ) break;
+            //if(dotGraph && ((iterations%100) == 0)) {
+            if(dotGraph) {
+                outputDotGraph(edges, level, iterations);
+            }
             iterations++;
             if( 0 == (iterations%1000) ) System.out.println("Iteration: "+iterations+" Flow: "+n.getFlow() );
 
@@ -182,6 +164,9 @@ public class EdgeWeights2 implements AbsEdgeWeights {
             heap.addAll(remove);
         }
         check();
+        if(dotGraph) {
+            outputDotGraph(edges, level, iterations);
+        }
     }
     private FlowEdge find( int src, int dst ) {
         return out.find(src, dst);

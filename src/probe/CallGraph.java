@@ -5,11 +5,11 @@ import java.util.*;
 public class CallGraph {
     /** @return The (mutable) set of ProbeMethod's that are the entry points
      * of the call graph. */
-    public Set/*ProbeMethod*/ entryPoints() {
+    public Set<ProbeMethod> entryPoints() {
         return entryPoints;
     }
     /** @return The (mutable) set of call edges in the call graph. */
-    public Set/*CallEdge*/ edges() {
+    public Set<CallEdge> edges() {
         return edges;
     }
 
@@ -33,7 +33,7 @@ public class CallGraph {
 
     /* End of public methods. */
 
-    private Set entryPoints = new HashSet();
-    private Set edges = new HashSet();
+    private Set<ProbeMethod> entryPoints = new HashSet<ProbeMethod>();
+    private Set<CallEdge> edges = new HashSet<CallEdge>();
 }
 

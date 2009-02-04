@@ -14,6 +14,7 @@ public class CallGraphDiff {
         System.out.println( "  -a : show all spurious edges rather than just those from reachable methods" );
         System.out.println( "  -m : print names of missing methods" );
         System.out.println( "  -p : ignore edges out of doPrivileged methods" );
+        System.out.println( "  -d : output dot graphs" );
         System.out.println( "  -switch : switch supergraph and subgraph" );
         System.exit(1);
     }
@@ -24,6 +25,7 @@ public class CallGraphDiff {
     public static boolean dashA = false;
     public static boolean dashM = false;
     public static boolean dashP = false;
+    public static boolean dashD = false;
     public static boolean dashSwitch = false;
     public static final void main( String[] args ) {
         if( args.length < 2 ) {
@@ -40,6 +42,7 @@ public class CallGraphDiff {
             else if( !doneOptions && args[i].equals("-a") ) dashA = true; 
             else if( !doneOptions && args[i].equals("-m") ) dashM = true; 
             else if( !doneOptions && args[i].equals("-p") ) dashP = true; 
+            else if( !doneOptions && args[i].equals("-d") ) dashD = true; 
             else if( !doneOptions && args[i].equals("-switch") ) dashSwitch = !dashSwitch;
             else if( !doneOptions && args[i].equals("--") ) doneOptions = true;
             else if( superFile == null ) superFile = args[i];
@@ -69,9 +72,9 @@ public class CallGraphDiff {
         }
         AbsEdgeWeights weights = null;
         if( dashF ) {
-            weights = new EdgeWeights(supergraph, subgraph);
+            weights = new EdgeWeights(supergraph, subgraph, dashD);
         } else if( dashFF ) {
-            weights = new EdgeWeights2(supergraph, subgraph);
+            weights = new EdgeWeights2(supergraph, subgraph, dashD);
         }
         CallGraph diff = diff(supergraph, subgraph);
         System.out.println( "===========================================================================");
@@ -174,11 +177,12 @@ public class CallGraphDiff {
         try {
             try {
                 ret = new GXLReader().readCallGraph(new FileInputStream(filename));
-            } catch( RuntimeException e ) {
+            } catch( Exception e ) {
+                System.out.println(e);
                 ret = new GXLReader().readCallGraph(new GZIPInputStream(new FileInputStream(filename)));
             }
         } catch( IOException e ) {
-            throw new RuntimeException( "caught IOException "+e );
+            throw new RuntimeException( "caught IOException "+e+" on file "+filename );
         }
         return ret;
     }
