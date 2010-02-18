@@ -136,10 +136,15 @@ public class CallGraphDiff {
         System.out.println( "Number of reachable methods missing in "+subFile+": "+missingReachables.size());
         System.out.println( "===========================================================================");
         if( dashM ) {
+        	List<String> lines = new ArrayList<String>();
             for( Iterator pmIt = missingReachables.iterator(); pmIt.hasNext(); ) {
                 final ProbeMethod pm = (ProbeMethod) pmIt.next();
-                System.out.println(pm);
+                lines.add(pm.toString());
             }
+            Collections.sort(lines);
+            for (String line : lines) {
+				System.out.println(line);
+			}
         }
 
     }
